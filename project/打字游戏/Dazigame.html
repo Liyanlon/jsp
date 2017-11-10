@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>打字游戏</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 1200px;
+            height: 100%;
+            /* background: #ccc; */
+            margin: 0 auto;
+            
+        }
+
+        .scene {
+            width: 1000px;
+            height: 100%;
+            /*background: yellow;*/
+            float: left;
+            position: relative;
+        }
+
+        .control {
+            width: 200px;
+            height: 100%;
+            background: linear-gradient(to right, #4B0082 0%,#ffffff 100%);
+            float: left;
+        }
+
+        .letter {
+            width: 100px;
+            height: 100px;
+            border: 10px solid white;
+            border-radius:60px;
+            text-align: center;
+            line-height: 100px;
+            font-size: 70px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-family: 黑体;
+            font-weight: bold;
+            position: absolute;
+        }
+        img{
+            width: 100%;
+            height: 100%;
+        }
+
+        .defen,.guanka,.sheng{
+            width: 200px;
+            height: 40px;
+            background-color: yellow;
+            line-height: 40px;
+            font-family: 楷体;
+            text-align: center;
+            font-size: 20px;
+        }
+        .scor,.state,.life{
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            font-family: 楷体;
+            font-size: 20px;
+        }
+        .start,.pause,.over{
+            width: 60px;
+            height: 60px;
+            background-color: black;
+            color:white;
+            /* border: 2px yellow solid; */
+            border: 0;
+            border-radius: 50%;
+            font-size: 20px;
+            font-family: 楷体;
+            margin:auto;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="scene">
+        <img src="img/1.jpg" alt="">
+
+    </div>
+    <div class="control">
+        <div class="defen">得分</div>
+        <div class="scor">0</div>
+        <div class="guanka">关卡</div>
+        <div class="state">1</div>
+        <div class="sheng">生命</div>
+        <div class="life">5</div><br>
+        <button class="start">开始</button>
+        <button class="pause">暂停</button>
+        <button class="over">结束</button><br>
+
+
+    </div>
+</div>
+</body>
+<script>
+    // 面向对象编程
+    class Game {
+        constructor() {
+            this.scene=document.querySelector(".scene");
+            this.scorEle=document.querySelector(".scor");
+            this.scor=0;
+            this.stateEle=document.querySelector(".state");
+            this.state=1;
+            this.lifeEle=document.querySelector(".life");
+            this.life=5;
+            this.num=3;
+            this.obj={};
+            this.speed=5;
+            this.h=window.innerHeight;
+            this.t=0;
+        }
+
+        start() {
+            for (let i=0; i < this.num; i++) {
+                this._createLetter();
+            }
+            this._move();
+            this._keydown();
+        }
+
+        //创建字母
+        _createLetter() {
+            let newdiv=document.createElement("div");
+            newdiv.className="letter";
+            do {
+                var randomNum=Math.floor(Math.random() * 26 + 65);
+                var randomLetter=String.fromCharCode(randomNum)
+            } while (this.obj[randomLetter])
+            newdiv.innerHTML=randomLetter;
+            do {
+                var randomLeft=Math.floor(Math.random() * 900);
+            } while (this._checkleft(randomLeft))
+            let randomTop=-Math.floor(Math.random() * 100);
+            newdiv.style.left=randomLeft + "px";
+            newdiv.style.top=randomTop + "px";
+            this.scene.appendChild(newdiv);
+            this.obj[randomLetter]={left: randomLeft, top: randomTop, ele: newdiv}
+        }
+
+        _checkleft(newleft) {
+            for (let i in this.obj) {
+                if (newleft > this.obj[i].left - 100 && newleft < this.obj[i].left + 100) {
+                    return true;
+                }
+            }
+        }
+
+        _move() {
+            this.t=setInterval(function () {
+                for (let i in this.obj) {
+                    let top=this.obj[i].top;
+                    top+=this.speed;
+                    this.obj[i].ele.style.top=top + "px";
+                    this.obj[i].top=top;
+                    if(this.obj[i].top>this.h){
+                        this.life--;
+                        this.lifeEle.innerHTML=this.life;
+                        this.scene.removeChild(this.obj[i].ele);
+                        delete this.obj[i];
+                        this._createLetter();
+                        if(this.life===0){
+                            if(confirm("得分"+this.scor+" 是否继续")){
+                                history.go(0);
+                            }
+                        }
+                    }
+                }
+            }.bind(this), 50)
+        }
+
+        _keydown() {
+            document.onkeydown=function (e) {
+                let kc=e.keyCode;
+                let letter=String.fromCharCode(kc);
+                if (this.obj[letter]) {
+                    this.scene.removeChild(this.obj[letter].ele);
+                    delete this.obj[letter];
+                    this._createLetter();
+                    this.scor++;
+                    this.scorEle.innerHTML=this.scor;
+                    if (this.scor % 10 === 0) {
+                        this._nextState();
+                    }
+                }
+            }.bind(this);
+        }
+
+        _nextState() {
+            this.state++;
+            this.stateEle.innerHTML=this.state;
+            if(this.state<=3) {
+                this._createLetter();
+            }else{
+                this.speed+=2;
+            }
+        }
+        pause(){
+           clearInterval(this.t);
+        }
+        running(){
+            this._move();
+        }
+        gameover(){
+            this.scor=0;
+            this.scorEle.innerHTML=0;
+            this.state=1;
+            this.stateEle.innerHTML=1;
+            this.life=5;
+            this.lifeEle.innerHTML=5;
+            this.num=3;
+            this.obj={};
+            this.speed=5;
+            clearInterval(this.t);
+            this.scene.innerHTML="";
+        }
+    }
+    let game=new Game();
+    let startBtn=document.querySelector(".start");
+    startBtn.onclick=function(){
+        game.start();
+    };
+    let pauseBtn=document.querySelector(".pause");
+    let flag=true;
+    pauseBtn.onclick=function(){
+        if(flag) {
+            game.pause();
+            pauseBtn.innerHTML="继续";
+        }else{
+            game.running();
+            pauseBtn.innerHTML="暂停";
+        }
+        flag=!flag;
+    };
+    let over=document.querySelector(".over");
+    over.onclick=function(){
+      game.gameover();
+    }
+
+</script>
+</html>

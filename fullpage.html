@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<!--<link rel="stylesheet" href="css/jquery.fullPage.css" />-->
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/first.css" />
+		<link rel="stylesheet" href="css/second.css" />
+		<title></title>
+	</head>
+	<body>
+		<div class="container">
+			<div class="section">
+				<ul id="nav">
+					<li data-menuanchor="p1" class="active"><a href="#p1">首页</a></li>
+					<li data-menuanchor="p2"><a href="#p2">个人信息</a></li>
+					<li data-menuanchor="p3"><a href="#p3">技能水平</a></li>
+					<li data-menuanchor="p4"><a href="#p4">项目介绍</a></li>
+					<li data-menuanchor="p5"><a href="#p5">联系方式</a></li>
+				</ul>
+				<div class="mask">
+					<div class="tou"><img src="img/you.jpg" alt="" /></div>
+					<p class="wel">WELCOME TO 我的主页</p>
+				</div>
+				<div class="slideshow">
+					<div class="slideshow-image" style="background-image: url('img/2.jpg')"></div>
+					<div class="slideshow-image" style="background-image: url('img/1.jpg')"></div>
+					<div class="slideshow-image" style="background-image: url('img/3.jpg')"></div>
+					<div class="slideshow-image" style="background-image: url('img/4.jpg')"></div>
+				</div>
+				
+			</div>
+			<div class="section">
+				<dis class="imgbox">
+					<img src="img/bj.jpg" alt="" />
+					<div class="ren">
+						<!--<img src="img/ren.jpg" alt="" />-->
+					</div>
+					
+				</dis>
+			</div>
+			<div class="section">
+				<!--<div class="g"></div>-->
+				
+				<div class="contain">
+				    <canvas width="200px" height="200px" id="canvas1"></canvas>
+				    <canvas width="200px" height="200px" id="canvas2"></canvas>
+				    <canvas width="200px" height="200px" id="canvas3"></canvas>
+				</div>
+			</div>
+			<div class="section"></div>
+			<div class="section"></div>
+		</div>
+		
+	</body>
+</html>
+<script src="js/jquery.js"></script>
+<script src="js/jquery.fullPage.min.js"></script>
+
+<script src="js/jquery.ripples.js"></script>
+<script src="js/index.js"></script>
+
+
+<script>
+    function circle(canvas,max,color) {
+        let ctx = canvas.getContext("2d");
+        ctx.save();
+        ctx.translate(100,100);
+        ctx.lineCap="round";
+        ctx.font="20px 微软雅黑"
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+        ctx.strokeStyle=color;
+        ctx.lineWidth=20;
+        let num=0;
+        function progress() {
+            num++;
+            let angle=num*Math.PI/50;
+            ctx.clearRect(-100,-100,200,200);
+            ctx.save();
+            ctx.rotate(-Math.PI/2);
+            ctx.shadowBlur=130;
+            ctx.shadowColor=color;
+            ctx.beginPath();
+            ctx.arc(0,0,70,0,angle);
+            ctx.stroke();
+            ctx.restore();
+            ctx.fillText(num+"%",0,0)
+            if(num<max){
+                requestAnimationFrame(progress);
+            }else{
+                ctx.restore();
+            }
+        }
+        progress();
+    }
+    let canvas1=document.querySelector("#canvas1");
+    let canvas2=document.querySelector("#canvas2");
+    let canvas3=document.querySelector("#canvas3");
+    let qc1=canvas1.getContext("canvas1");
+    let qc2=canvas2.getContext("canvas2");
+    let qc3=canvas3.getContext("canvas3");
+    let container=document.querySelector(".container");
+    let flag=true;
+    window.addEventListener("scroll",
+    function () {
+        let st=document.documentElement.scrollTop;
+        if(st>container.offsetTop-300&&flag===true){
+            flag=false;
+            circle(canvas1,80,"red");
+            circle(canvas2,90,"blue");
+            circle(canvas3,70,"yellow");
+        }
+        if(st<container.offsetTop-300){
+            flag=true;
+            qc1.clearRect(0,0,200,200);
+            qc2.clearRect(0,0,200,200);
+            qc3.clearRect(0,0,200,200);
+        }
+    })
+
+</script>
